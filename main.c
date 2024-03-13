@@ -127,28 +127,35 @@ int main(void)
     InitWindow(800, 600, "Hello World");
 
     Texture tex = LoadTexture("out.png");
-    struct glyph cp = atlas.chars[65 - 32];
-    TraceLog(LOG_DEBUG, "cp(%c) s1=%f,t1=%f,s2=%f,t2=%f", cp.codepoint, cp.s1, cp.t1, cp.s2, cp.t2);
-
-    Rectangle src;
-    src.x = cp.s1;
-    src.y = cp.t1;
-    src.width  = (float)cp.s2 - cp.s1;
-    src.height = (float)cp.t2 - cp.t1;
 
     float newFontSize = 24.0f;
     float scale = newFontSize/atlas.height;
-    Rectangle dst;
-    dst.x = 0;
-    dst.y = 0;
-    dst.width = (cp.s2-cp.s1)*scale;
-    dst.height = tex.height*scale;
-
+    const char *text = "Hello, World";
+    size_t textLength = strlen(text);
+    Vector2 pos = {0.0f, 0.0f};
     while(!WindowShouldClose()) {
         BeginDrawing();
 
-        DrawTexturePro(tex, src, dst, (Vector2){0.0f, 0.0f}, 0.0f, RED);
+        for(int i = 0; i < (int)textLength; ++i) {
+            struct glyph cp = atlas.chars[text[i] - 32];
+            TraceLog(LOG_DEBUG, "cp(%c) s1=%f,t1=%f,s2=%f,t2=%f", cp.codepoint, cp.s1, cp.t1, cp.s2, cp.t2);
 
+            Rectangle src;
+            src.x = cp.s1;
+            src.y = cp.t1;
+            src.width  = (float)cp.s2 - cp.s1;
+            src.height = (float)cp.t2 - cp.t1;
+
+            Rectangle dst;
+            dst.x = pos.x;
+            dst.y = 0;
+            dst.width = (cp.s2-cp.s1)*scale;
+            dst.height = tex.height*scale;
+            DrawTexturePro(tex, src, dst, (Vector2){0.0f, 0.0f}, 0.0f, RED);
+            pos.x += dst.width;
+        }
+
+        pos.x = 0.0f;
         EndDrawing();
     }
 
